@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Documentation</title>
+  <style>
+    :root {
+      --create-color: #28a745; /* Updated to a different shade of green */
+      --read-color: #3498db;
+      --update-color: #f39c12;
+      --delete-color: #e74c3c;
+      --primary-dark: #2c3e50;
+      --secondary-dark: #34495e;
+      --secondary-blue: #00162c;
+      --primary-blue: #003c77;
+      --light-bg: #f9f9f9;
+      --card-bg: #ffffff;
+      --emerald-dark: #03433e; /* emerald-950 */
+      --emerald-light: #037048; /* emerald-900 */
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--light-bg);
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      text-align: center;
+      padding: 3rem 0;
+      background: linear-gradient(135deg, var(--emerald-dark), var(--emerald-light));
+      color: white;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin: 0;
+      margin-bottom: 1rem;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      max-width: 800px;
+      margin: 0 auto;
+      opacity: 0.9;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 1rem;
+      /* margin-bottom: 2rem; */
+      flex-wrap: wrap;
+    }
+
+    .nav-tab {
+      padding: 0.75rem 1.5rem;
+      background: var(--card-bg);
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--primary-dark);
+      font-weight: 500;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    section {
+      margin: 77px 0;
+    }
+
+    .nav-tab:hover {
+      transform: translateY(-2px);
+    }
+
+    .api-endpoint {
+      background: var(--card-bg);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .method-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      margin-right: 1rem;
+    }
+
+    .method-badge.post {
+      background-color: var(--create-color);
+    }
+
+    .method-badge.get {
+      background-color: var(--read-color);
+    }
+
+    .method-badge.put {
+      background-color: var(--update-color);
+    }
+
+    .method-badge.delete {
+      background-color: var(--delete-color);
+    }
+
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .endpoint-url {
+      font-family: 'Fira Code', monospace;
+      background: #f8f9fa;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      color: var(--secondary-dark);
+    }
+
+    .code-block {
+        background: #1a1a1a;
+        color: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        font-family: 'Fira Code', monospace;
+        overflow-x: auto;
+        margin: 1rem 0;
+    }
+
+    .response-code {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+
+    .response-code.success {
+      background: var(--create-color);
+      color: white;
+    }
+
+    .try-it {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: var(--primary-dark);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      margin-top: 1rem;
+      transition: background 0.2s;
+    }
+
+    .try-it:hover {
+      background: var(--secondary-dark);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 95%;
+        padding: 1rem;
+      }
+
+      .api-endpoint {
+        padding: 1rem;
+      }
+    }
+  </style>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="header">
+    <h1><i class="fa-solid fa-notes-medical"></i> Military Asset App - API</h1>
+    <!-- <p>Comprehensive documentation for the Think Strive Management Portal API endpoints</p> -->
+    <div class="container nav-tabs">
+      <a href="#users" class="nav-tab"><i class="fas fa-users"></i> Users Routes</a>
+      <a href="#auth" class="nav-tab"><i class="fas fa-user-shield"></i> Auth Routes</a>
+      <!-- <a href="#news" class="nav-tab"><i class="fas fa-newspaper"></i> News Routes</a> -->
+      <!-- <a href="#reporters" class="nav-tab"><i class="fas fa-user-shield"></i> Reporters Routes</a> -->
+      <a href="#" class="nav-tab"><i class="fas fa-tasks"></i> Other Routes (Coming Soon)</a>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <section id="users">
+      <h2><i class="fas fa-users"></i> User Routes</h2>
+    
+      <!-- Create User -->
+      <div class="api-endpoint">
+        <div class="endpoint-header">
+          <span class="method-badge post">POST</span>
+          <span class="endpoint-url">/api/users/create</span>
+        </div>
+        <h3>Create User</h3>
+        <p>Creates a new user in the system.</p>
+    
+        <h4><i class="fas fa-paper-plane"></i> Request Payload</h4>
+        <div class="code-block">
+          <pre>
+          {
+            "name": "Amit Kumar",
+            "email": "amit.kumar@example.com",
+            "password": "securepassword123",
+            "profilePicture": "https://example.com/profiles/amit_kumar.jpg",
+            "address": "Flat No. 101, ABC Apartments, Sector 45, Gurgaon",
+            "pincode": "122003"
+          }
+          </pre>
+          </div>
+    
+        <h4><i class="fas fa-reply"></i> Response</h4>
+        <span class="response-code success">201 Created</span>
+        <div class="code-block">
+          <pre>
+
+            {
+              "message": "User created successfully",
+              "user": {
+                "_id": "64d2f8b9e7a8c95b7c7f2c8d",
+                "name": "Amit Kumar",
+                "email": "amit.kumar@example.com",
+                "profilePicture": "https://example.com/profiles/amit_kumar.jpg",
+                "address": "Flat No. 101, ABC Apartments, Sector 45, Gurgaon",
+                "pincode": "122003",
+                "createdAt": "2023-08-09T12:34:56.789Z",
+                "updatedAt": "2023-08-09T12:34:56.789Z"
+              }
+            }
+          </pre>
+        </div>
+        <!-- <a href="#" class="try-it"><i class="fas fa-play"></i> Try it out</a> -->
+      </div>
+    
+      <!-- Get All Users -->
+      <div class="api-endpoint">
+        <div class="endpoint-header">
+          <span class="method-badge get">GET</span>
+          <span class="endpoint-url">/api/users/get</span>
+        </div>
+        <h3>Get All Users</h3>
+        <p>Retrieves a list of all users in the system.</p>
+    
+        <h4><i class="fas fa-reply"></i> Response</h4>
+        <span class="response-code success">200 OK</span>
+        <div class="code-block">
+          <pre>
+          [
+            {
+              "_id": "64d2f8b9e7a8c95b7c7f2c8d",
+              "name": "Amit Kumar",
+              "email": "amit.kumar@example.com",
+              "profilePicture": "https://example.com/profiles/amit_kumar.jpg",
+              "address": "Flat No. 101, ABC Apartments, Sector 45, Gurgaon",
+              "pincode": "122003",
+              "createdAt": "2023-08-09T12:34:56.789Z",
+              "updatedAt": "2023-08-09T12:34:56.789Z"
+            },
+            {
+              "_id": "64d2f8b9e7a8c95b7c7f2c8e",
+              "name": "Priya Sharma",
+              "email": "priya.sharma@example.com",
+              "profilePicture": "https://example.com/profiles/priya_sharma.jpg",
+              "address": "House No. 22, XYZ Colony, Chandigarh",
+              "pincode": "160019",
+              "createdAt": "2023-08-09T12:34:56.789Z",
+              "updatedAt": "2023-08-09T12:34:56.789Z"
+            },
+            // ... more users
+          ]
+          </pre>
+        </div>
+        <!-- <a href="#" class="try-it"><i class="fas fa-play"></i> Try it out</a> -->
+      </div>
+    
+      <!-- Get User by ID -->
+      <div class="api-endpoint">
+        <div class="endpoint-header">
+          <span class="method-badge get">GET</span>
+          <span class="endpoint-url">/api/users/get/:id</span>
+        </div>
+        <h3>Get User by ID</h3>
+        <p>Retrieves a specific user by their ID.</p>
+    
+        <h4><i class="fas fa-reply"></i> Response</h4>
+        <span class="response-code success">200 OK</span>
+        <div class="code-block">
+          <pre>
+          {
+            "_id": "64d2f8b9e7a8c95b7c7f2c8d",
+            "name": "Amit Kumar",
+            "email": "amit.kumar@example.com",
+            "profilePicture": "https://example.com/profiles/amit_kumar.jpg",
+            "address": "Flat No. 101, ABC Apartments, Sector 45, Gurgaon",
+            "pincode": "122003",
+            "createdAt": "2023-08-09T12:34:56.789Z",
+            "updatedAt": "2023-08-09T12:34:56.789Z"
+          }</pre>
+
+        </div>
+        <!-- <a href="#" class="try-it"><i class="fas fa-play"></i> Try it out</a> -->
+      </div>
+    
+      <!-- Update User by ID -->
+      <div class="api-endpoint">
+        <div class="endpoint-header">
+          <span class="method-badge put">PUT</span>
+          <span class="endpoint-url">/api/users/update/:id</span>
+        </div>
+        <h3>Update User</h3>
+        <p>Updates an existing user's information.</p>
+    
+        <h4><i class="fas fa-paper-plane"></i> Request Payload</h4>
+        <div class="code-block">
+          <pre>
+          {
+            "name": "Amit K",
+            "email": "amit.k@example.com",
+            "profilePicture": "https://example.com/new-profile.jpg",
+            "address": "New Address",
+            "pincode": "123456"
+          }
+          </pre>
+        </div>
+    
+        <h4><i class="fas fa-reply"></i> Response</h4>
+        <span class="response-code success">200 OK</span>
+        <div class="code-block">
+          <pre>
+          {
+            "message": "User updated successfully",
+            "user": {
+              "_id": "64d2f8b9e7a8c95b7c7f2c8d",
+              "name": "Amit K",
+              "email": "amit.k@example.com",
+              "profilePicture": "https://example.com/new-profile.jpg",
+              "address": "New Address",
+              "pincode": "123456",
+              "createdAt": "2023-08-09T12:34:56.789Z",
+              "updatedAt": "2023-08-09T13:45:56.789Z"
+            }
+          }</pre>
+        </div>
+        <!-- <a href="#" class="try-it"><i class="fas fa-play"></i> Try it out</a> -->
+      </div>
+    
+   
+    
+      <!-- Delete User by ID -->
+      <div class="api-endpoint">
+        <div class="endpoint-header">
+          <span class="method-badge delete">DELETE</span>
+          <span class="endpoint-url">/api/users/delete/:id</span>
+        </div>
+        <h3>Delete User</h3>
+        <p>Removes a user from the system.</p>
+    
+        <h4><i class="fas fa-reply"></i> Response</h4>
+        <span class="response-code success">200 OK</span>
+        <div class="code-block">
+          <pre>
+          {
+            "message": "User deleted successfully"
+          }
+          </pre>
+          
+        </div>
+        <!-- <a href="#" class="try-it"><i class="fas fa-play"></i> Try it out</a> -->
+      </div>
+    </section>
+
+    <section id="auth">
+      <h2><i class="fas fa-user-shield"></i> Auth Routes</h2>
+    
+      <!-- User Login -->
+      <div class="api-endpoint">
+        <div class="endpoint-header">
+          <span class="method-badge post">POST</span>
+          <span class="endpoint-url">/api/auth/login</span>
+        </div>
+        <h3>User Login</h3>
+        <p>Authenticates a user and returns a token for accessing protected routes.</p>
+    
+        <h4><i class="fas fa-paper-plane"></i> Request Payload</h4>
+        <div class="code-block">
+          {
+            "email": "john.doe@example.com",
+            "password": "securePassword123"
+          }
+        </div>
+    
+        <h4><i class="fas fa-reply"></i> Response</h4>
+        <span class="response-code success">200 OK</span>
+        <div class="code-block">
+          {
+            "message": "Login successful",
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "user": {
+              "id": "12345",
+              "name": "John Doe",
+              "email": "john.doe@example.com",
+              "profilePicture": "https://example.com/profile.jpg",
+              "userType": "Free"
+            }
+          }
+        </div>
+        <!-- <a href="#" class="try-it"><i class="fas fa-play"></i> Try it out</a> -->
+      </div>
+    
+      <!-- User Signup -->
+      <div class="api-endpoint">
+        <div class="endpoint-header">
+          <span class="method-badge post">POST</span>
+          <span class="endpoint-url">/api/auth/signup</span>
+        </div>
+        <h3>User Signup</h3>
+        <p>Registers a new user in the system.</p>
+    
+        <h4><i class="fas fa-paper-plane"></i> Request Payload</h4>
+        <div class="code-block">
+          {
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "password": "securePassword123",
+            "profilePicture": "https://example.com/profile.jpg",
+            "userType": "Free"
+          }
+        </div>
+    
+        <h4><i class="fas fa-reply"></i> Response</h4>
+        <span class="response-code success">201 Created</span>
+        <div class="code-block">
+          {
+            "message": "User registered successfully",
+            "userId": "12345"
+          }
+        </div>
+        <!-- <a href="#" class="try-it"><i class="fas fa-play"></i> Try it out</a> -->
+      </div>
+    
+      <!-- User Logout -->
+      <div class="api-endpoint">
+        <div class="endpoint-header">
+          <span class="method-badge post">POST</span>
+          <span class="endpoint-url">/api/auth/logout</span>
+        </div>
+        <h3>User Logout</h3>
+        <p>Logs out the user and invalidates the session token.</p>
+    
+        <h4><i class="fas fa-paper-plane"></i> Request Payload</h4>
+        <div class="code-block">
+          <!-- {
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          } -->
+        </div>
+    
+        <h4><i class="fas fa-reply"></i> Response</h4>
+        <span class="response-code success">200 OK</span>
+        <div class="code-block">
+          {
+            "message": "Logout successful"
+          }
+        </div>
+        <!-- <a href="#" class="try-it"><i class="fas fa-play"></i> Try it out</a> -->
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    document.querySelectorAll('.try-it').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('API testing functionality coming soon!');
+      });
+    });
+  </script>
+</body>
+
+</html>
