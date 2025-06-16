@@ -193,6 +193,12 @@ export const signIn = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
+        const userData = {
+            name : user.name,
+            email : user.email,
+            role: user.role,
+        };
+
         const { accessToken, refreshToken } = generateTokenAndSetCookie(res, user)
         // Optionally return accessToken if you want to track it or use it
 
