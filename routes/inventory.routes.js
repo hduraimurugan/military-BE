@@ -11,6 +11,6 @@ const router = express.Router();
 router.get('/my', verifyAccessToken, getMyStockDetails);
 
 // ✅ For admins
-router.get('/', verifyAccessToken, verifyRole(['admin']), getAllStockDetails);
+router.get('/', verifyAccessToken, getAllStockDetails); //verifyRole(['admin'])
 
 export default router;

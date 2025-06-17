@@ -101,48 +101,132 @@ export const transferAsset = async (fromBaseId, toBaseId, assetId, qty) => {
 
 /**
  * GET /api/inventory/my
- * Get inventory for the current user's base (with optional asset filter)
- * Returns: base details once + array of stocks
+ * Get inventory for the current user's base with server-side filtering
  */
 export const getMyStockDetails = async (req, res) => {
     try {
         const baseId = req.user.baseId;
-        const { asset } = req.query;
+        const {
+            asset,
+            category,
+            minQuantity,
+            maxQuantity,
+            showLowStock,
+            dateFrom,
+            dateTo,
+            sortField,
+            sortDirection,
+            base_id
+        } = req.query;
 
-        if (!baseId) return res.status(400).json({ message: 'User base ID not found' });
+        // Determine which base to query
+        let queryBase;
+        if (req.user.role === 'admin') {
+            // For admin, use the base_id from query if provided, otherwise show all bases
+            queryBase = base_id || { $exists: true };
+        } else {
+            // For non-admin users, only show data from their assigned base
+            if (!baseId) return res.status(400).json({ message: 'User base ID not found' });
+            queryBase = baseId;
+        }
 
-        const query = { base: baseId };
-        if (asset) query.asset = asset;
+        // Build the query object
+        const query = { base: queryBase };
+        
+        let matchingAssetIds = [];
+
+        if (asset) {
+            const regex = new RegExp(asset, 'i');
+            matchingAssetIds = await Asset.find({
+                $or: [
+                    { name: regex },
+                    { category: regex },
+                    { unit: regex }
+                ]
+            }).distinct('_id');
+        }
+
+        if (category && category !== 'All categories') {
+            const catRegex = new RegExp(category, 'i');
+            const categoryAssetIds = await Asset.find({ category: catRegex }).distinct('_id');
+
+            // If asset is already filtered, take intersection
+            if (matchingAssetIds.length > 0) {
+                matchingAssetIds = matchingAssetIds.filter(id =>
+                    categoryAssetIds.includes(id.toString())
+                );
+            } else {
+                matchingAssetIds = categoryAssetIds;
+            }
+
+            // If still nothing matches after both filters
+            if (matchingAssetIds.length === 0) {
+                return res.status(200).json({ base: null, stocks: [] });
+            }
+        }
+
+        // Finally apply the asset condition to the query
+        if (matchingAssetIds.length > 0) {
+            query.asset = { $in: matchingAssetIds };
+        }
+
+        const quantityQuery = {};
+        if (minQuantity) quantityQuery.$gte = Number(minQuantity);
+        if (maxQuantity) quantityQuery.$lte = Number(maxQuantity);
+        if (showLowStock === 'true') quantityQuery.$lt = 10;
+        if (Object.keys(quantityQuery).length > 0) {
+            query.quantity = quantityQuery;
+        }
+
+        const dateQuery = {};
+        if (dateFrom) dateQuery.$gte = new Date(dateFrom);
+        if (dateTo) dateQuery.$lte = new Date(dateTo);
+        if (Object.keys(dateQuery).length > 0) {
+            query.updatedAt = dateQuery;
+        }
+
+        // Sorting logic remains the same...
+        const sortOptions = {};
+        if (sortField) {
+            sortOptions[sortField] = sortDirection === 'desc' ? -1 : 1;
+        } else {
+            sortOptions.updatedAt = -1;
+        }
+
+        console.log("Query", query);
 
         const stocks = await Inventory.find(query)
             .populate('asset', 'name category unit')
-            .populate('base', 'name state district');
+            .populate('base', 'name state district')
+            .sort(sortOptions);
 
+        // Response formatting remains the same...
         if (!stocks.length) {
             return res.status(200).json({ base: null, stocks: [] });
         }
 
-        // Extract base info from the first item (since all have the same base)
         const base = {
             name: stocks[0].base.name,
             state: stocks[0].base.state,
             district: stocks[0].base.district,
         };
 
-        const formattedStocks = stocks.map(({ asset, quantity, purchased, expended, assigned, transferredOut, transferredIn, _id }) => ({
-            _id,
-            asset,
-            quantity,
-            purchased,
-            expended,
-            assigned,
-            transferredOut,
-            transferredIn
+        const formattedStocks = stocks.map(stock => ({
+            _id: stock._id,
+            asset: stock.asset,
+            quantity: stock.quantity,
+            purchased: stock.purchased,
+            expended: stock.expended,
+            assigned: stock.assigned,
+            transferredOut: stock.transferredOut,
+            transferredIn: stock.transferredIn,
+            createdAt: stock.createdAt,
+            updatedAt: stock.updatedAt
         }));
 
         res.status(200).json({ base, stocks: formattedStocks });
     } catch (error) {
-        console.error('Error fetching my stock details:', error);
+        console.error('Error fetching stock details:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
