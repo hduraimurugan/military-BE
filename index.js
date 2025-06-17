@@ -26,8 +26,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
-  "https://billing-software-six.vercel.app",
-  "https://bill-software-inventory.vercel.app"
+  "https://military-assets-management-eta.vercel.app",
 ];
 
 // CORS middleware (manual handling)
