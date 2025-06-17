@@ -10,6 +10,7 @@ import authRoutes from "./routes/auth.routes.js"
 import settingsRoutes from "./routes/settings.routes.js"
 import purchaseRoutes from "./routes/purchase.routes.js"
 import stocksRoutes from "./routes/inventory.routes.js"
+import transferRoutes from "./routes/transfer.routes.js"
 
 // Load environment variables
 dotenv.config();
@@ -69,6 +70,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/stocks", stocksRoutes);
+app.use("/api/transfers", transferRoutes);
 app.use("/api/purchase", purchaseRoutes);
 app.use("/api/settings", settingsRoutes);
 

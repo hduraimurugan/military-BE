@@ -98,6 +98,41 @@ export const transferAsset = async (fromBaseId, toBaseId, assetId, qty) => {
     };
 };
 
+/**
+ * Reverse a previously recorded transfer between bases.
+ * It restores the original inventory state:
+ * - Adds quantity back to the source base
+ * - Removes quantity from the destination base
+ */
+export const reverseTransferAsset = async (fromBaseId, toBaseId, assetId, qty) => {
+    if (fromBaseId.toString() === toBaseId.toString()) {
+        throw new Error('Source and destination base cannot be the same.');
+    }
+
+    // Add back to source base (undo deduction)
+    const fromInventory = await ensureInventory(fromBaseId, assetId);
+    fromInventory.quantity += qty;
+    fromInventory.transferredOut -= qty;
+    if (fromInventory.transferredOut < 0) fromInventory.transferredOut = 0;
+    await fromInventory.save();
+
+    // Remove from destination base (undo addition)
+    const toInventory = await ensureInventory(toBaseId, assetId);
+    if (toInventory.quantity < qty) {
+        throw new Error('Cannot reverse transfer. Destination base has already used some stock.');
+    }
+
+    toInventory.quantity -= qty;
+    toInventory.transferredIn -= qty;
+    if (toInventory.transferredIn < 0) toInventory.transferredIn = 0;
+    await toInventory.save();
+
+    return {
+        reversedFrom: fromInventory,
+        reversedTo: toInventory
+    };
+};
+
 
 /**
  * GET /api/inventory/my
@@ -132,7 +167,7 @@ export const getMyStockDetails = async (req, res) => {
 
         // Build the query object
         const query = { base: queryBase };
-        
+
         let matchingAssetIds = [];
 
         if (asset) {
