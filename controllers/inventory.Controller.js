@@ -52,6 +52,41 @@ export const expendAsset = async (baseId, assetId, qty) => {
 };
 
 /**
+ * Reverse asset expenditure (moves from expended back to quantity)
+ */
+export const reverseExpendAsset = async (baseId, assetId, qty) => {
+    const inventory = await ensureInventory(baseId, assetId);
+
+    if (inventory.expended < qty) {
+        throw new Error('Not enough expended quantity to reverse.');
+    }
+
+    inventory.expended -= qty;
+    inventory.quantity += qty;
+
+    return await inventory.save();
+};
+
+/**
+ * Convert assigned asset to expended (used/destroyed/lost).
+ * - Decreases `assigned`
+ * - Increases `expended`
+ */
+export const assignedToExpendAsset = async (baseId, assetId, qty) => {
+    const inventory = await ensureInventory(baseId, assetId);
+
+    if (inventory.assigned < qty) {
+        throw new Error('Cannot expend. Assigned quantity is less than specified.');
+    }
+
+    inventory.assigned -= qty;
+    inventory.expended += qty;
+
+    return await inventory.save();
+};
+
+
+/**
  * Assign asset to personnel (reduces quantity, increases assigned)
  */
 export const assignAsset = async (baseId, assetId, qty) => {
@@ -66,6 +101,25 @@ export const assignAsset = async (baseId, assetId, qty) => {
 
     return await inventory.save();
 };
+
+/**
+ * Reverse an asset assignment from personnel.
+ * - Increases quantity back to base
+ * - Decreases assigned count
+ */
+export const reverseAssignAsset = async (baseId, assetId, qty) => {
+    const inventory = await ensureInventory(baseId, assetId);
+
+    if (inventory.assigned < qty) {
+        throw new Error('Cannot reverse assignment. Assigned quantity is less than specified.');
+    }
+
+    inventory.quantity += qty;
+    inventory.assigned -= qty;
+
+    return await inventory.save();
+};
+
 
 /**
  * Transfer asset to another base.

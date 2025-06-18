@@ -39,16 +39,20 @@ export const createTransferBill = async (req, res) => {
             remarks,
             transferDate
         });
-        await newTransfer.save();
 
         for (const item of items) {
             await transferAsset(fromBase, toBase, item.asset, item.quantity);
         }
 
+        await newTransfer.save();
+
         res.status(201).json({ message: 'Transfer bill created successfully', transfer: newTransfer });
     } catch (error) {
         console.error('Error creating transfer bill:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({
+            message: 'Failed to create transfer bill',
+            error: error.message || 'Internal server error'
+        });
     }
 };
 
@@ -79,7 +83,10 @@ export const deleteTransferBill = async (req, res) => {
         res.status(200).json({ message: 'Transfer bill deleted and inventory rolled back' });
     } catch (error) {
         console.error('Error deleting transfer bill:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({
+            message: 'Failed to delete transfer bill',
+            error: error.message || 'Internal server error'
+        });
     }
 };
 
