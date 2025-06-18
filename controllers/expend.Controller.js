@@ -3,6 +3,7 @@ import Asset from '../DB/models/asset.model.js';
 import Base from '../DB/models/base.model.js';
 import { expendAsset, reverseExpendAsset, assignedToExpendAsset } from './inventory.Controller.js';
 import Assign from '../DB/models/assign.model.js';
+import { createLog } from './movement.Controller.js';
 
 /**
  * Create a new expenditure record and update inventory
@@ -40,6 +41,16 @@ export const createExpenditure = async (req, res) => {
         }
 
         await newExpenditure.save();
+
+        await createLog({
+            actionType: 'expenditure',
+            items, // include asset, quantity
+            base,
+            performedBy: req.user.id,
+            referenceId: newExpenditure._id,
+            remarks: remarks || `Expended by ${expendedBy}`
+        });
+
 
         res.status(201).json({ message: 'Asset(s) expended successfully', expenditure: newExpenditure });
     } catch (error) {
@@ -97,6 +108,16 @@ export const markAssignedAsExpended = async (req, res) => {
         await expendDoc.save();
         await assignment.save();
 
+        await createLog({
+            actionType: 'expenditure',
+            items, // same format
+            base,
+            performedBy: req.user.id,
+            referenceId: expendDoc._id,
+            remarks: remarks || `Expenditure from assignment ${assignedId}`
+        });
+
+
         res.status(201).json({
             message: 'Assigned asset(s) marked as expended successfully',
             expenditure: expendDoc
@@ -132,6 +153,19 @@ export const deleteExpenditure = async (req, res) => {
         }
 
         await expenditure.deleteOne();
+
+        await createLog({
+            actionType: 'expenditure',
+            items: expenditure.items.map(item => ({
+                asset: item.asset,
+                quantity: -item.quantity, // reversal
+                unitPrice: item.unitPrice || 0
+            })),
+            base: expenditure.base,
+            performedBy: req.user.id,
+            referenceId: expenditure._id,
+            remarks: `Expenditure reversed`
+        });
 
         res.status(200).json({ message: 'Expenditure deleted successfully' });
     } catch (error) {

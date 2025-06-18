@@ -3,6 +3,7 @@ import Purchase from '../DB/models/purchase.model.js';
 import { purchaseAsset } from './inventory.Controller.js';
 import Asset from '../DB/models/asset.model.js';
 import Base from '../DB/models/base.model.js';
+import { createLog } from './movement.Controller.js';
 
 /**
  * Create a new purchase bill and update inventory
@@ -32,6 +33,15 @@ export const createPurchaseBill = async (req, res) => {
     for (const item of items) {
       await purchaseAsset(base, item.asset, item.quantity);
     }
+
+    await createLog({
+      actionType: 'purchase',
+      items, // array of { asset, quantity, unitPrice }
+      base,
+      performedBy: req.user.id,
+      referenceId: newPurchase._id,
+      remarks: remarks || `Invoice: ${invoiceNumber}`
+    });
 
     res.status(201).json({ message: 'Purchase bill created successfully', purchase: newPurchase });
   } catch (error) {
@@ -80,12 +90,22 @@ export const updatePurchaseBill = async (req, res) => {
 
     await existingPurchase.save();
 
+    await createLog({
+      actionType: 'purchase',
+      items, // updated list
+      base: existingPurchase.base,
+      performedBy: req.user.id,
+      referenceId: existingPurchase._id,
+      remarks: `Purchase bill updated. Invoice: ${invoiceNumber}`
+    });
+
+
     res.status(200).json({ message: 'Purchase bill updated successfully', purchase: existingPurchase });
   } catch (error) {
     console.error('Error updating purchase bill:', error);
-      res.status(500).json({
-        message: 'Failed to update purchase',
-        error: error.message || 'Internal server error'
+    res.status(500).json({
+      message: 'Failed to update purchase',
+      error: error.message || 'Internal server error'
     });
   }
 };
@@ -116,12 +136,25 @@ export const deletePurchaseBill = async (req, res) => {
 
     await purchase.deleteOne();
 
+    await createLog({
+      actionType: 'purchase',
+      items: purchase.items.map(item => ({
+        asset: item.asset,
+        quantity: -item.quantity, // show reversal
+        unitPrice: item.unitPrice || 0
+      })),
+      base: purchase.base,
+      performedBy: req.user.id,
+      referenceId: purchase._id,
+      remarks: `Purchase bill deleted. Invoice: ${purchase.invoiceNumber}`
+    });
+
     res.status(200).json({ message: 'Purchase bill deleted and inventory updated' });
   } catch (error) {
     console.error('Error deleting purchase bill:', error);
-      res.status(500).json({
-        message: 'Failed to delete purchase',
-        error: error.message || 'Internal server error'
+    res.status(500).json({
+      message: 'Failed to delete purchase',
+      error: error.message || 'Internal server error'
     });
   }
 };

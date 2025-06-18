@@ -72,8 +72,8 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/stocks", stocksRoutes);
-app.use("/api/transfers", transferRoutes);
 app.use("/api/purchase", purchaseRoutes);
+app.use("/api/transfers", transferRoutes);
 app.use("/api/assign", assignRoutes);
 app.use("/api/expend", expendRoutes);
 app.use("/api/settings", settingsRoutes);

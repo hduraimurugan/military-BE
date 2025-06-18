@@ -2,6 +2,7 @@ import Assign from '../DB/models/assign.model.js';
 import Asset from '../DB/models/asset.model.js';
 import Base from '../DB/models/base.model.js';
 import { assignAsset, reverseAssignAsset } from './inventory.Controller.js';
+import { createLog } from './movement.Controller.js';
 
 /**
  * Create a new assignment and update inventory
@@ -39,6 +40,18 @@ export const createAssignment = async (req, res) => {
         }
         await newAssignment.save();
 
+        await newAssignment.save();
+
+        await createLog({
+            actionType: 'assignment',
+            items,
+            base,
+            performedBy: req.user.id,
+            referenceId: newAssignment._id,
+            remarks: remarks || `Assigned to user ${assignedTo}`
+        });
+
+
         res.status(201).json({ message: 'Asset(s) assigned successfully', assignment: newAssignment });
     } catch (error) {
         console.error('Error creating assignment:', error);
@@ -71,6 +84,18 @@ export const deleteAssignment = async (req, res) => {
         }
 
         await assignment.deleteOne();
+
+        await createLog({
+            actionType: 'assignment',
+            items: assignment.items.map(item => ({
+                asset: item.asset,
+                quantity: -item.quantity
+            })),
+            base: assignment.base,
+            performedBy: req.user.id,
+            referenceId: assignment._id,
+            remarks: `Assignment to user ${assignment.assignedTo} reversed`
+        });
 
         res.status(200).json({ message: 'Assignment deleted successfully' });
     } catch (error) {

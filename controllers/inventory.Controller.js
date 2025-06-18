@@ -283,6 +283,7 @@ export const getMyStockDetails = async (req, res) => {
         }
 
         console.log("Query", query);
+        console.log("Sort Options", sortOptions);
 
         const stocks = await Inventory.find(query)
             .populate('asset', 'name category unit')

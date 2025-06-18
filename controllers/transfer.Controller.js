@@ -3,6 +3,7 @@ import Transfer from '../DB/models/transfer.model.js';
 import { reverseTransferAsset, transferAsset } from './inventory.Controller.js';
 import Asset from '../DB/models/asset.model.js';
 import Base from '../DB/models/base.model.js';
+import { createLog } from './movement.Controller.js';
 
 /**
  * Create a new transfer bill and update inventory
@@ -46,11 +47,21 @@ export const createTransferBill = async (req, res) => {
 
         await newTransfer.save();
 
+        await createLog({
+            actionType: 'transfer',
+            items,
+            base: fromBase, // the initiating base
+            performedBy: req.user.id,
+            referenceId: newTransfer._id,
+            remarks: remarks || `Transfer to ${toBaseExists.name}`
+        });
+
+
         res.status(201).json({ message: 'Transfer bill created successfully', transfer: newTransfer });
     } catch (error) {
         console.error('Error creating transfer bill:', error);
         res.status(500).json({
-            message: 'Failed to create transfer bill',
+            message: `Failed to create transfer bill: ${error}`,
             error: error.message || 'Internal server error'
         });
     }
@@ -63,7 +74,10 @@ export const deleteTransferBill = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const transfer = await Transfer.findById(id);
+        const transfer = await Transfer.findById(id)
+            .populate('fromBase', 'name state district')
+            .populate('toBase', 'name state district');
+
         if (!transfer) return res.status(404).json({ message: 'Transfer bill not found' });
 
         const userBaseId = req.user.baseId?.toString();
@@ -79,6 +93,19 @@ export const deleteTransferBill = async (req, res) => {
         }
 
         await transfer.deleteOne();
+
+        await createLog({
+            actionType: 'transfer',
+            items: transfer.items.map(item => ({
+                asset: item.asset,
+                quantity: -item.quantity
+            })),
+            base: transfer.fromBase,
+            performedBy: req.user.id,
+            referenceId: transfer._id,
+            remarks: `Transfer reversed (originally to ${transfer.toBase.name})`
+        });
+
 
         res.status(200).json({ message: 'Transfer bill deleted and inventory rolled back' });
     } catch (error) {
