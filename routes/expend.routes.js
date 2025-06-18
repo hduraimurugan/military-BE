@@ -24,7 +24,7 @@ router.post(
 
 // 🔄 Mark assigned assets as expended (used in field)
 router.post(
-  '/markAssignedAsExpended',
+  '/markAssignedAsExpended/:id',
   verifyAccessToken,
   verifyRole(['base_commander', 'admin']),
   markAssignedAsExpended

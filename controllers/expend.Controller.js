@@ -71,7 +71,8 @@ export const createExpenditure = async (req, res) => {
 export const markAssignedAsExpended = async (req, res) => {
     try {
         const base = req.user.baseId || req.body.base;
-        const { assignedId, expendedBy, items, remarks, expendDate } = req.body;
+        const assignedId = req.params.id
+        const { expendedBy, items, remarks, expendDate } = req.body;
 
         if (!base || !expendedBy || !assignedId) {
             return res.status(400).json({ message: 'Base, assignedId, and expendedBy are required' });
@@ -248,10 +249,10 @@ export const getExpenditureById = async (req, res) => {
             .populate('items.asset', 'name category unit')
             .populate('approvedBy', 'name role')
 
-if (!expenditure) return res.status(404).json({ message: 'Expenditure not found' });
+        if (!expenditure) return res.status(404).json({ message: 'Expenditure not found' });
 
-res.status(200).json(expenditure);
+        res.status(200).json(expenditure);
     } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch expenditure', error: error.message });
-}
+        res.status(500).json({ message: 'Failed to fetch expenditure', error: error.message });
+    }
 };

@@ -5,10 +5,36 @@ import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js
 
 // === GET /api/auth/me ===
 export const getMe = async (req, res) => {
-    const user = await User.findById(req.user.id).select('-password')
-    if (!user) return res.status(404).json({ message: 'User not found' })
-    res.json({ user })
-}
+  try {
+    const user = await User.findById(req.user.id).select('-password').populate('base', 'name state district');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const userData = {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      accessScope: user.accessScope,
+    };
+
+    if (user.base) {
+      userData.baseId = user.base._id;
+      userData.baseName = user.base.name;
+      userData.state = user.base.state;
+      // You can include `district` too if needed:
+      // userData.district = user.base.district;
+    }
+
+    res.json({ user: userData });
+  } catch (error) {
+    console.error("Error in getMe:", error);
+    res.status(500).json({ message: "Failed to retrieve user", error: error.message });
+  }
+};
+
+
 
 // === POST /api/auth/refresh ===
 export const refreshToken = (req, res) => {
