@@ -21,8 +21,9 @@ export const getAssetSummaries = async (req, res) => {
             minQuantity,
             maxQuantity,
             showLowStock,
-            dateFrom,
-            dateTo,
+            // dateFrom,
+            // dateTo,
+            date,
             sortField,
             sortDirection,
             base_id
@@ -81,12 +82,28 @@ export const getAssetSummaries = async (req, res) => {
         }
 
         // Date filters
-        const dateQuery = {};
-        if (dateFrom) dateQuery.$gte = new Date(dateFrom);
-        if (dateTo) dateQuery.$lte = new Date(dateTo);
-        if (Object.keys(dateQuery).length > 0) {
-            query.date = dateQuery;
+        // const dateQuery = {};
+        // if (dateFrom) dateQuery.$gte = new Date(dateFrom);
+        // if (dateTo) dateQuery.$lte = new Date(dateTo);
+        // if (Object.keys(dateQuery).length > 0) {
+        //     query.date = dateQuery;
+        // }
+
+        // Date filter - single specific date only
+        if (date) {
+            const inputDate = new Date(date);
+
+            if (isNaN(inputDate)) {
+                return res.status(400).json({ message: 'Invalid date format' });
+            }
+
+            // Match documents on the same calendar date regardless of time
+            const startOfDay = new Date(inputDate.setHours(0, 0, 0, 0));
+            const endOfDay = new Date(inputDate.setHours(23, 59, 59, 999));
+
+            query.date = { $gte: startOfDay, $lte: endOfDay };
         }
+
 
         // Sorting
         const sortOptions = {};

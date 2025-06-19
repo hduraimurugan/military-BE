@@ -17,6 +17,7 @@ import movementRoutes from "./routes/movement.routes.js"
 import summaryRoutes from "./routes/dataSummary.routes.js"
 import cron from 'node-cron';
 import dayjs from 'dayjs';
+import { generateDailySummaries } from "./cron/dailySummaryJob.js";
 
 
 // Load environment variables

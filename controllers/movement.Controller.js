@@ -43,7 +43,10 @@ export const getAllLogs = async (req, res) => {
     } else if (baseId) {
       query.base = baseId;
     }
-    if (assetId) query.asset = assetId;
+    // Asset filtering
+    if (assetId) {
+      query['items.asset'] = assetId;
+    }
     if (actionType) query.actionType = actionType;
 
     const options = {
