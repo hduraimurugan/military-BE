@@ -29,10 +29,10 @@ const userSchema = new mongoose.Schema({
     },
   },
 
-  accessScope: {
-    type: [String], // ['purchases', 'transfers']
-    default: undefined,
-  },
+  // accessScope: {
+  //   type: [String], // ['purchases', 'transfers']
+  //   default: undefined,
+  // },
 
   password: {
     type: String,

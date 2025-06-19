@@ -49,7 +49,11 @@ export const getAllLogs = async (req, res) => {
     const options = {
       page: parseInt(page),
       limit: parseInt(limit),
-      populate: ['base', 'asset', 'performedBy'],
+      populate: [
+        { path: 'base' },
+        { path: 'performedBy' },
+        { path: 'items.asset' } // ✅ nested path population
+      ],
       sort: { createdAt: -1 }
     };
 

@@ -128,6 +128,8 @@ export const getAllMyAssignments = async (req, res) => {
 
         const filter = { base: baseToCheck };
 
+        filter.isExpended = false;
+
         if (assetId) {
             filter['items.asset'] = assetId;
         }

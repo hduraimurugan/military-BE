@@ -13,6 +13,7 @@ import stocksRoutes from "./routes/inventory.routes.js"
 import transferRoutes from "./routes/transfer.routes.js"
 import assignRoutes from "./routes/assign.routes.js"
 import expendRoutes from "./routes/expend.routes.js"
+import movementRoutes from "./routes/movement.routes.js"
 
 // Load environment variables
 dotenv.config();
@@ -76,6 +77,7 @@ app.use("/api/purchase", purchaseRoutes);
 app.use("/api/transfers", transferRoutes);
 app.use("/api/assign", assignRoutes);
 app.use("/api/expend", expendRoutes);
+app.use("/api/movement", movementRoutes);
 app.use("/api/settings", settingsRoutes);
 
 // Helper to format elapsed startup time

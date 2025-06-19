@@ -16,7 +16,6 @@ export const getMe = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      accessScope: user.accessScope,
     };
 
     if (user.base) {
@@ -64,7 +63,6 @@ export const createUser = async (req, res) => {
             password,
             role,
             base, // base ID now
-            accessScope,
         } = req.body;
 
         const existingUser = await User.findOne({ email });
@@ -97,10 +95,6 @@ export const createUser = async (req, res) => {
                 return res.status(400).json({ message: 'Base ID is required for this role' });
             }
             userData.base = base;
-        }
-
-        if (role === 'logistics_officer') {
-            userData.accessScope = accessScope || ['purchases', 'transfers'];
         }
 
         const user = await User.create(userData);
@@ -141,7 +135,7 @@ export const getUserById = async (req, res) => {
 // ✅ Update User Info (excluding password)
 export const updateUser = async (req, res) => {
     try {
-        const { name, role, base, accessScope, isActive } = req.body;
+        const { name, role, base, isActive } = req.body;
         const userId = req.params.id;
 
         // 🧠 Check if role is base_commander and ensure uniqueness
@@ -158,7 +152,7 @@ export const updateUser = async (req, res) => {
                 });
             }
         }
-        const updates = { name, role, accessScope, isActive };
+        const updates = { name, role, isActive };
 
         if (['base_commander', 'logistics_officer'].includes(role)) {
             updates.base = base;
@@ -236,7 +230,6 @@ export const signIn = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                accessScope: user.accessScope,
                 baseId: user.base?._id,
                 baseName: user.base?.name,
                 state: user.base?.state,

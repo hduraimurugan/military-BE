@@ -49,8 +49,8 @@ export const verifyRefreshToken = (req, res, next) => {
 
 export const verifyRole = (requiredRoles) => {
     return (req, res, next) => {
-        console.log("Allowed roles", requiredRoles);
-        console.log("Logged in User :", req.user);
+        // console.log("Allowed roles", requiredRoles);
+        // console.log("Logged in User :", req.user);
 
         if (!req.user || !requiredRoles.includes(req.user.role)) {
             return res.status(403).json({ message: 'Access denied. Insufficient permissions' });
