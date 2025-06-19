@@ -14,6 +14,7 @@ import transferRoutes from "./routes/transfer.routes.js"
 import assignRoutes from "./routes/assign.routes.js"
 import expendRoutes from "./routes/expend.routes.js"
 import movementRoutes from "./routes/movement.routes.js"
+import summaryRoutes from "./routes/dataSummary.routes.js"
 import cron from 'node-cron';
 import dayjs from 'dayjs';
 
@@ -87,6 +88,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/stocks", stocksRoutes);
+app.use("/api/summary", summaryRoutes);
 app.use("/api/purchase", purchaseRoutes);
 app.use("/api/transfers", transferRoutes);
 app.use("/api/assign", assignRoutes);
@@ -97,22 +99,22 @@ app.use("/api/settings", settingsRoutes);
 
 if (isRenderDeployed) {
   // ✅ Cron Job: runs every day at 00:00
- cron.schedule(
-  '30 18 * * *', // Runs every day at 18:30 UTC = 00:00 IST
-  async () => {
-    console.log("⏰ Running daily summary job (00:00 IST)...");
-    try {
-      await generateDailySummaries();
-      console.log("✅ Done running daily summary");
-    } catch (error) {
-      console.error("❌ Error running daily summary:", error.message);
-      console.error(error);
+  cron.schedule(
+    '30 18 * * *', // Runs every day at 18:30 UTC = 00:00 IST
+    async () => {
+      console.log("⏰ Running daily summary job (00:00 IST)...");
+      try {
+        await generateDailySummaries();
+        console.log("✅ Done running daily summary");
+      } catch (error) {
+        console.error("❌ Error running daily summary:", error.message);
+        console.error(error);
+      }
+    },
+    {
+      timezone: "UTC" // 🔐 Always keep this to UTC on Render
     }
-  },
-  {
-    timezone: "UTC" // 🔐 Always keep this to UTC on Render
-  }
-);
+  );
 }
 
 

@@ -88,14 +88,3 @@ export const generateDailySummaries = async () => {
 
     console.log(`[✅] Daily summary updated for ${date.toDateString()}`);
 };
-
-
-// // server.js or app.js
-// import cron from 'node-cron';
-// import { generateDailySummaries } from './cron/dailySummaryJob.js';
-
-// // Every day at 00:00
-// cron.schedule('0 0 * * *', async () => {
-//   console.log("⏰ Running daily summary job...");
-//   await generateDailySummaries();
-// });

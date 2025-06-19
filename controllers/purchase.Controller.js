@@ -162,14 +162,22 @@ export const deletePurchaseBill = async (req, res) => {
 export const getAllPurchaseBills = async (req, res) => {
   try {
     const { page = 1, limit = 10, baseId, assetId, date } = req.query;
-    const query = {};
+
+    const queryBase = req.user.role !== 'admin' ? req.user.baseId : baseId;
+
+    if (!queryBase) {
+      return res.status(400).json({ message: 'Base ID is required for fetching assignments' });
+    }
+    const query = { base: queryBase };
+
+    // const query = {};
 
     // Base filtering (for admin/non-admin users)
-    if (req.user.role !== 'admin') {
-      query.base = req.user.baseId;
-    } else if (baseId) {
-      query.base = baseId;
-    }
+    // if (req.user.role !== 'admin') {
+    //   query.base = req.user.baseId;
+    // } else if (baseId) {
+    //   query.base = baseId;
+    // }
 
     // Asset filtering
     if (assetId) {
