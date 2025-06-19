@@ -40,7 +40,7 @@ const allowedOrigins = [
 ];
 
 const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
-
+const isRenderDeployed = process.env.RENDER_DEPLOYED
 
 
 // CORS middleware (manual handling)
@@ -95,17 +95,25 @@ app.use("/api/movement", movementRoutes);
 app.use("/api/settings", settingsRoutes);
 
 
-// ✅ Cron Job: runs every day at 00:00
-cron.schedule('0 0 * * *', async () => {
-  console.log("⏰ Running daily summary job...");
-  try {
-    await generateDailySummaries();
-    console.log("✅ Done running daily summary");
-  } catch (error) {
-    console.error("❌ Error running daily summary:", error.message);
-    console.error(error); // Optional: full stack trace
+if (isRenderDeployed) {
+  // ✅ Cron Job: runs every day at 00:00
+ cron.schedule(
+  '30 18 * * *', // Runs every day at 18:30 UTC = 00:00 IST
+  async () => {
+    console.log("⏰ Running daily summary job (00:00 IST)...");
+    try {
+      await generateDailySummaries();
+      console.log("✅ Done running daily summary");
+    } catch (error) {
+      console.error("❌ Error running daily summary:", error.message);
+      console.error(error);
+    }
+  },
+  {
+    timezone: "UTC" // 🔐 Always keep this to UTC on Render
   }
-});
+);
+}
 
 
 // Helper to format elapsed startup time
