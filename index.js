@@ -14,16 +14,22 @@ import transferRoutes from "./routes/transfer.routes.js"
 import assignRoutes from "./routes/assign.routes.js"
 import expendRoutes from "./routes/expend.routes.js"
 import movementRoutes from "./routes/movement.routes.js"
+import cron from 'node-cron';
+import dayjs from 'dayjs';
+
 
 // Load environment variables
 dotenv.config();
+
 
 // Create Express app and server
 const app = express();
 const server = http.createServer(app);
 
+
 // Start time for performance tracking
 const appStartTime = process.hrtime();
+
 
 // Allowed client origins
 const allowedOrigins = [
@@ -32,6 +38,10 @@ const allowedOrigins = [
   "http://localhost:5175",
   "https://military-assets-management-eta.vercel.app",
 ];
+
+const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
+
+
 
 // CORS middleware (manual handling)
 app.use((req, res, next) => {
@@ -50,14 +60,17 @@ app.use((req, res, next) => {
   next();
 });
 
+
 // Middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+
 // Static assets
 const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, "public")));
+
 
 // Serve HTML documentation
 app.get("/", (req, res) => {
@@ -70,6 +83,7 @@ app.get("/", (req, res) => {
   });
 });
 
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/stocks", stocksRoutes);
@@ -80,6 +94,20 @@ app.use("/api/expend", expendRoutes);
 app.use("/api/movement", movementRoutes);
 app.use("/api/settings", settingsRoutes);
 
+
+// ✅ Cron Job: runs every day at 00:00
+cron.schedule('0 0 * * *', async () => {
+  console.log("⏰ Running daily summary job...");
+  try {
+    await generateDailySummaries();
+    console.log("✅ Done running daily summary");
+  } catch (error) {
+    console.error("❌ Error running daily summary:", error.message);
+    console.error(error); // Optional: full stack trace
+  }
+});
+
+
 // Helper to format elapsed startup time
 function formatElapsedTime(start) {
   const [seconds, nanoseconds] = process.hrtime(start);
@@ -87,12 +115,16 @@ function formatElapsedTime(start) {
   return `${milliseconds} ms`;
 }
 
+
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 1616;
 connectDB()
   .then(() => {
     console.log(`\n${chalk.green.bold("✅ MongoDB Connected Successfully")}`);
     console.log(chalk.green(`🚀 Billing Software API ready in ${chalk.yellowBright(formatElapsedTime(appStartTime))}`));
+
+    console.log(chalk.cyan(`🕒 Current Time: ${now}`));
+
     server.listen(PORT, () => {
       console.log(`\n${chalk.cyan("🔗 Server Running At:")} ${chalk.underline(`http://localhost:${PORT}`)}\n`);
     });
