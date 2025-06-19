@@ -102,6 +102,7 @@ if (isRenderDeployed) {
   cron.schedule(
     '30 18 * * *', // Runs every day at 18:30 UTC = 00:00 IST
     async () => {
+      console.log(chalk.cyan(`🕒 Current Time: ${now}`));
       console.log("⏰ Running daily summary job (00:00 IST)...");
       try {
         await generateDailySummaries();
