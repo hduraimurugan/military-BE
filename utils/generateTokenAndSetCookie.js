@@ -3,6 +3,7 @@ import { generateAccessToken, generateRefreshToken } from './token.js';
 
 export const generateTokenAndSetCookie = (res, payload) => {
     const isProduction = process.env.NODE_ENV === 'production'
+    console.log("isProduction", isProduction);
 
     const accessToken = generateAccessToken(payload)
     const refreshToken = generateRefreshToken(payload)
