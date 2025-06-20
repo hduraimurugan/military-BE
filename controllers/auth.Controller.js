@@ -241,24 +241,29 @@ export const signIn = async (req, res) => {
     }
 };
 
-// ✅ LOGOUT
+// ✅ LOGOUT FUNCTION
 export const logout = async (req, res) => {
-    try {
-        res.clearCookie('accessToken', {
-            httpOnly: true,
-            sameSite: 'Lax',
-            secure: process.env.NODE_ENV === 'production',
-        })
-        res.clearCookie('refreshToken', {
-            httpOnly: true,
-            sameSite: 'Lax',
-            secure: process.env.NODE_ENV === 'production',
-        })
+  try {
+    const isProduction = process.env.NODE_ENV === 'production';
 
-        return res.json({ message: 'Logged out successfully' })
-    } catch (err) {
-        console.error('Logout Error:', err);
-        res.status(500).json({ message: 'Internal server error' });
-    }
+    // Clear both access and refresh tokens
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      sameSite: isProduction ? 'None' : 'Lax',
+      secure: isProduction,
+    });
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      sameSite: isProduction ? 'None' : 'Lax',
+      secure: isProduction,
+    });
+
+    return res.status(200).json({ message: 'Logged out successfully' });
+  } catch (err) {
+    console.error('Logout Error:', err);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
 };
+
 
