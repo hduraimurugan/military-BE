@@ -267,11 +267,19 @@ export const getMyStockDetails = async (req, res) => {
             query.quantity = quantityQuery;
         }
 
-        const dateQuery = {};
-        if (dateFrom) dateQuery.$gte = new Date(dateFrom);
-        if (dateTo) dateQuery.$lte = new Date(dateTo);
-        if (Object.keys(dateQuery).length > 0) {
-            query.updatedAt = dateQuery;
+        // const dateQuery = {};
+        // if (dateFrom) dateQuery.$gte = new Date(dateFrom);
+        // if (dateTo) dateQuery.$lte = new Date(dateTo);
+        // if (Object.keys(dateQuery).length > 0) {
+        //     query.updatedAt = dateQuery;
+        // }
+
+        if (dateFrom && dateTo) {
+            const startDate = new Date(dateFrom);
+            startDate.setHours(0, 0, 0, 0);
+            const endDate = new Date(dateTo);
+            endDate.setHours(23, 59, 59, 999);
+            query.updatedAt = { $gte: startDate, $lte: endDate };
         }
 
         // Sorting logic remains the same...

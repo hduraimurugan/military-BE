@@ -117,7 +117,9 @@ export const getAllMyAssignments = async (req, res) => {
             limit = 10,
             assetId,
             date,
-            baseId
+            baseId,
+            dateFrom,
+            dateTo
         } = req.query;
 
         const baseToCheck = req.user.role !== 'admin' ? req.user.baseId : baseId;
@@ -134,10 +136,18 @@ export const getAllMyAssignments = async (req, res) => {
             filter['items.asset'] = assetId;
         }
 
-        if (date) {
-            const startDate = new Date(date);
+        // if (date) {
+        //     const startDate = new Date(date);
+        //     startDate.setHours(0, 0, 0, 0);
+        //     const endDate = new Date(date);
+        //     endDate.setHours(23, 59, 59, 999);
+        //     filter.assignDate = { $gte: startDate, $lte: endDate };
+        // }
+
+        if (dateFrom && dateTo) {
+            const startDate = new Date(dateFrom);
             startDate.setHours(0, 0, 0, 0);
-            const endDate = new Date(date);
+            const endDate = new Date(dateTo);
             endDate.setHours(23, 59, 59, 999);
             filter.assignDate = { $gte: startDate, $lte: endDate };
         }

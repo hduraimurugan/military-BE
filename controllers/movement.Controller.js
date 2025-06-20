@@ -35,7 +35,7 @@ export const createLog = async ({
  */
 export const getAllLogs = async (req, res) => {
   try {
-    const { page = 1, limit = 10, baseId, assetId, actionType } = req.query;
+    const { page = 1, limit = 10, baseId, assetId, actionType,  dateFrom, dateTo } = req.query;
 
     const query = {};
     if (req.user.role !== 'admin') {
@@ -47,6 +47,16 @@ export const getAllLogs = async (req, res) => {
     if (assetId) {
       query['items.asset'] = assetId;
     }
+
+    // Date filtering
+    if (dateFrom && dateTo) {
+      const startDate = new Date(dateFrom);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = new Date(dateTo);
+      endDate.setHours(23, 59, 59, 999);
+      query.date = { $gte: startDate, $lte: endDate };
+    }
+
     if (actionType) query.actionType = actionType;
 
     const options = {

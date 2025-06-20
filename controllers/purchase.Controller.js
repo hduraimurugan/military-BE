@@ -161,7 +161,7 @@ export const deletePurchaseBill = async (req, res) => {
 
 export const getAllPurchaseBills = async (req, res) => {
   try {
-    const { page = 1, limit = 10, baseId, assetId, date } = req.query;
+    const { page = 1, limit = 10, baseId, assetId, date, dateFrom, dateTo } = req.query;
 
     const queryBase = req.user.role !== 'admin' ? req.user.baseId : baseId;
 
@@ -184,11 +184,18 @@ export const getAllPurchaseBills = async (req, res) => {
       query['items.asset'] = assetId;
     }
 
+    // const dateQuery = {};
+    // if (dateFrom) dateQuery.$gte = new Date(dateFrom);
+    // if (dateTo) dateQuery.$lte = new Date(dateTo);
+    // if (Object.keys(dateQuery).length > 0) {
+    //   query.purchaseDate = dateQuery;
+    // }
+
     // Date filtering
-    if (date) {
-      const startDate = new Date(date);
+    if (dateFrom && dateTo) {
+      const startDate = new Date(dateFrom);
       startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date(date);
+      const endDate = new Date(dateTo);
       endDate.setHours(23, 59, 59, 999);
       query.purchaseDate = { $gte: startDate, $lte: endDate };
     }
