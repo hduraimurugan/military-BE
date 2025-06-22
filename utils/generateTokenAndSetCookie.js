@@ -10,18 +10,18 @@ export const generateTokenAndSetCookie = (res, payload) => {
 
     res.cookie('accessToken', accessToken, {
         httpOnly: true,
-        sameSite: isProduction ? 'None' : 'Lax',
+        sameSite: isProduction ? "none" : "lax",
         // sameSite: 'None',
         secure: isProduction,
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        maxAge: 24 * 60 * 60 * 1000, // 1 days
     })
 
     res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        sameSite: isProduction ? 'None' : 'Lax',
+        sameSite: isProduction ? "none" : "lax",
         // sameSite: 'None',
         secure: isProduction,
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     })
 
     return { accessToken, refreshToken };

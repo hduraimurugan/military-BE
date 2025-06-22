@@ -3,37 +3,37 @@ import User from '../DB/models/users.model.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/token.js'
 import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js';
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 // === GET /api/auth/me ===
 export const getMe = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('-password').populate('base', 'name state district');
+    try {
+        const user = await User.findById(req.user.id).select('-password').populate('base', 'name state district');
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const userData = {
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        };
+
+        if (user.base) {
+            userData.baseId = user.base._id;
+            userData.baseName = user.base.name;
+            userData.state = user.base.state;
+            // You can include `district` too if needed:
+            // userData.district = user.base.district;
+        }
+
+        res.json({ user: userData });
+    } catch (error) {
+        console.error("Error in getMe:", error);
+        res.status(500).json({ message: "Failed to retrieve user", error: error.message });
     }
-
-    const userData = {
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    };
-
-    if (user.base) {
-      userData.baseId = user.base._id;
-      userData.baseName = user.base.name;
-      userData.state = user.base.state;
-      // You can include `district` too if needed:
-      // userData.district = user.base.district;
-    }
-
-    res.json({ user: userData });
-  } catch (error) {
-    console.error("Error in getMe:", error);
-    res.status(500).json({ message: "Failed to retrieve user", error: error.message });
-  }
 };
-
-
 
 // === POST /api/auth/refresh ===
 export const refreshToken = (req, res) => {
@@ -43,9 +43,9 @@ export const refreshToken = (req, res) => {
         const newAccessToken = generateAccessToken(user)
         res.cookie('accessToken', newAccessToken, {
             httpOnly: true,
-            sameSite: 'Lax',
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 15 * 60 * 1000, // 15 minutes
+            sameSite: isProduction ? "none" : "lax",
+            secure: isProduction,
+            maxAge: 24 * 60 * 60 * 1000, // 1 days
         })
 
         res.json({ success: true })
@@ -214,8 +214,8 @@ export const signIn = async (req, res) => {
         if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
         const userData = {
-            name : user.name,
-            email : user.email,
+            name: user.name,
+            email: user.email,
             role: user.role,
         };
 
@@ -243,27 +243,27 @@ export const signIn = async (req, res) => {
 
 // ✅ LOGOUT FUNCTION
 export const logout = async (req, res) => {
-  try {
-    const isProduction = process.env.NODE_ENV === 'production';
+    try {
+        const isProduction = process.env.NODE_ENV === 'production';
 
-    // Clear both access and refresh tokens
-    res.clearCookie('accessToken', {
-      httpOnly: true,
-      sameSite: isProduction ? 'None' : 'Lax',
-      secure: isProduction,
-    });
+        // Clear both access and refresh tokens
+        res.clearCookie('accessToken', {
+            httpOnly: true,
+            sameSite: isProduction ? 'None' : 'Lax',
+            secure: isProduction,
+        });
 
-    res.clearCookie('refreshToken', {
-      httpOnly: true,
-      sameSite: isProduction ? 'None' : 'Lax',
-      secure: isProduction,
-    });
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            sameSite: isProduction ? 'None' : 'Lax',
+            secure: isProduction,
+        });
 
-    return res.status(200).json({ message: 'Logged out successfully' });
-  } catch (err) {
-    console.error('Logout Error:', err);
-    return res.status(500).json({ message: 'Internal Server Error' });
-  }
+        return res.status(200).json({ message: 'Logged out successfully' });
+    } catch (err) {
+        console.error('Logout Error:', err);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
 };
 
 
