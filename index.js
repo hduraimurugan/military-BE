@@ -97,6 +97,12 @@ app.use("/api/expend", expendRoutes);
 app.use("/api/movement", movementRoutes);
 app.use("/api/settings", settingsRoutes);
 
+// Ping
+app.get('/ping', (req, res) => {
+  res.send('pong');
+});
+
+
 
 if (isRenderDeployed) {
   // ✅ Cron Job: runs every day at 00:00
