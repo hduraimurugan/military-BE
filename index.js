@@ -123,13 +123,26 @@ app.get('/ping', (req, res) => {
 //   );
 // }
 
-// Run every 2 minutes
+// ✅ Cron Job: runs every day at 00:00
+// cron.schedule(
+//   '30 18 * * *', // Runs every day at 18:30 UTC = 00:00 IST
+//   async () => {
+//     const currentTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
+//     console.log(chalk.cyan(`🕒 Current Time: ${currentTime}`));
+//     console.log("⏰ Running daily summary job (00:00 IST)...");
+//     try {
+//       await generateDailySummaries();
+//       console.log("✅ Done running daily summary");
+//     } catch (error) {
+//       console.error("❌ Error running daily summary:", error.message);
+//       console.error(error);
+//     }
+//   },
+//   {
+//     timezone: "UTC" // 🔐 Always keep this to UTC on Render
+//   }
+// );
 
-cron.schedule('*/2 * * * *', () => {
-  const currentTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
-  console.log(chalk.cyan(`🕒Cron Current Time: ${currentTime}`));
-  console.log("⏰ Cron Running every 2-minute job...");
-});
 
 // Helper to format elapsed startup time
 function formatElapsedTime(start) {
