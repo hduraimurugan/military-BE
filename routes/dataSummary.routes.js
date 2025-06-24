@@ -11,6 +11,6 @@ const router = express.Router();
 // ✅ For all
 router.get('/', verifyAccessToken, getAssetSummaries); //verifyRole(['admin'])
 
-router.get('/hit', verifyAccessToken, handler); //verifyRole(['admin'])
+router.get('/hit', handler); //verifyRole(['admin'])
 
 export default router;

@@ -44,7 +44,6 @@ const allowedOrigins = [
 const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
 const isRenderDeployed = process.env.RENDER_DEPLOYED
 
-
 // CORS middleware (manual handling)
 app.use((req, res, next) => {
   const origin = req.headers.origin;
@@ -127,7 +126,8 @@ app.get('/ping', (req, res) => {
 // Run every 2 minutes
 
 cron.schedule('*/2 * * * *', () => {
-  console.log(chalk.cyan(`🕒Cron Current Time: ${now}`));
+  const currentTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
+  console.log(chalk.cyan(`🕒Cron Current Time: ${currentTime}`));
   console.log("⏰ Cron Running every 2-minute job...");
 });
 
