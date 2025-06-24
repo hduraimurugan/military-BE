@@ -7,6 +7,6 @@ import {
 const router = express.Router();
 
 // ✅ For admins
-router.get('/', verifyAccessToken, verifyRole(['admin']), getAllLogs); //verifyRole(['admin'])
+router.get('/', verifyAccessToken, getAllLogs); //verifyRole(['admin'])
 
 export default router;
