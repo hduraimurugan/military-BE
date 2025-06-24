@@ -103,28 +103,33 @@ app.get('/ping', (req, res) => {
 });
 
 
+// if (isRenderDeployed) {
+//   // ✅ Cron Job: runs every day at 00:00
+//   cron.schedule(
+//     '30 18 * * *', // Runs every day at 18:30 UTC = 00:00 IST
+//     async () => {
+//       console.log(chalk.cyan(`🕒 Current Time: ${now}`));
+//       console.log("⏰ Running daily summary job (00:00 IST)...");
+//       try {
+//         await generateDailySummaries();
+//         console.log("✅ Done running daily summary");
+//       } catch (error) {
+//         console.error("❌ Error running daily summary:", error.message);
+//         console.error(error);
+//       }
+//     },
+//     {
+//       timezone: "UTC" // 🔐 Always keep this to UTC on Render
+//     }
+//   );
+// }
 
-if (isRenderDeployed) {
-  // ✅ Cron Job: runs every day at 00:00
-  cron.schedule(
-    '30 18 * * *', // Runs every day at 18:30 UTC = 00:00 IST
-    async () => {
-      console.log(chalk.cyan(`🕒 Current Time: ${now}`));
-      console.log("⏰ Running daily summary job (00:00 IST)...");
-      try {
-        await generateDailySummaries();
-        console.log("✅ Done running daily summary");
-      } catch (error) {
-        console.error("❌ Error running daily summary:", error.message);
-        console.error(error);
-      }
-    },
-    {
-      timezone: "UTC" // 🔐 Always keep this to UTC on Render
-    }
-  );
-}
+// Run every 2 minutes
 
+cron.schedule('*/2 * * * *', () => {
+  console.log(chalk.cyan(`🕒Cron Current Time: ${now}`));
+  console.log("⏰ Cron Running every 2-minute job...");
+});
 
 // Helper to format elapsed startup time
 function formatElapsedTime(start) {
